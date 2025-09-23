@@ -1,0 +1,11 @@
+# Ignore everything
+/*
+
+!/firstmail/
+!/tests/
+*.pyc
+__pycache__/
+!pyproject.toml
+!readme.md
+!requirements*.txt
+!.git*

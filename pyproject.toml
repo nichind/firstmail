@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.dynamic]
+version = {attr = "firstmail.VERSION"}
+
+[project]
+name = "firstmail"
+dynamic = ["version"]
+authors = [
+    {name = "nichind", email = "nichind@proton.me"},
+]
+description = "Firstmail IMAP client"
+readme = "readme.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+classifiers = [
+    "Programming Language :: Python :: 3.9",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+keywords = [
+    "firstmail"
+]
+dependencies = ["psutil", "pysocks"]
+
+[project.scripts]
+firstmail = "firstmail.__main__:main"
+
+[project.urls]
+"Homepage" = "https://github.com/nichind/firstmail"
+"Issues" = "https://github.com/nichind/firstmail/issues"
+
+[tool.setuptools]
+packages = {find = {}}
+
+[tool.ruff]
+line-length = 140
