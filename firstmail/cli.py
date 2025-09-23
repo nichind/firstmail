@@ -18,6 +18,31 @@ def get_credentials(email: Optional[str] = None, password: Optional[str] = None)
     return email, password
 
 
+def parse_credentials(credentials_str: str) -> tuple[str, str]:
+    """Parse credentials string in format 'email:password'."""
+    if not credentials_str or ":" not in credentials_str:
+        return None, None
+    
+    parts = credentials_str.split(":", 1)
+    return parts[0], parts[1]
+
+
+def is_credentials_token(token: str) -> bool:
+    """Heuristic to detect a credentials token."""
+    return token and not token.startswith("-") and "@" in token and ":" in token
+
+
+def show_available_commands():
+    """Show available commands after executing default command."""
+    print("\nAvailable commands:")
+    print("  read-last (last)    - Read the most recent email")
+    print("  read-all (all)      - Read all emails")
+    print("  send                - Send an email")
+    print("  watch               - Watch for new emails")
+    print("  count               - Count total messages in inbox")
+    print("\nRun 'firstmail <command> --help' for more information on a command.")
+
+
 def cmd_read_last(args):
     """Read the last/most recent email."""
     email, password = get_credentials(args.email, args.password)
@@ -180,7 +205,7 @@ def cmd_count(args):
 def main():
     """Main CLI entry point."""
     parser = argparse.ArgumentParser(
-        description="FirstMail IMAP client - High-performance email client for firstmail.ltd",
+        description="FirstMail IMAP client - Email client for firstmail.ltd",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -189,6 +214,8 @@ Examples:
   %(prog)s send --to user@example.com   # Send an email interactively
   %(prog)s watch --interval 60          # Watch for new emails every minute
   %(prog)s count                        # Count total messages
+  %(prog)s "email:password" read-last   # Provide credentials as positional argument
+  %(prog)s "email:password"             # Default to read-last command
         """,
     )
 
@@ -225,7 +252,29 @@ Examples:
     parser_count = subparsers.add_parser("count", help="Count total messages in inbox")
     parser_count.set_defaults(func=cmd_count)
 
-    args = parser.parse_args()
+    # Pre-scan argv to capture credentials token before parsing commands
+    argv = sys.argv[1:]
+    creds_token = None
+    KNOWN_COMMANDS = {"read-last", "last", "read-all", "all", "send", "watch", "count"}
+    if argv and is_credentials_token(argv[0]) and argv[0] not in KNOWN_COMMANDS:
+        creds_token = argv.pop(0)
+
+    args = parser.parse_args(argv)
+
+    # Inject credentials if provided positionally
+    if creds_token:
+        email, password = parse_credentials(creds_token)
+        if email and not args.email:
+            args.email = email
+        if password and not args.password:
+            args.password = password
+
+    # Default to read-last when only credentials are provided (no command)
+    if creds_token and not args.command:
+        args.json = False  # ensure attribute exists for cmd_read_last
+        cmd_read_last(args)
+        show_available_commands()
+        sys.exit(0)
 
     if not args.command:
         parser.print_help()
