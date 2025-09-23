@@ -11,7 +11,7 @@ dynamic = ["version"]
 authors = [
     {name = "nichind", email = "nichind@proton.me"},
 ]
-description = "Firstmail IMAP client"
+description = "Integrate firstmail.ltd emails into your Python applications with ease."
 readme = "readme.md"
 requires-python = ">=3.9"
 license = {text = "MIT"}
