@@ -23,7 +23,7 @@ classifiers = [
 keywords = [
     "firstmail"
 ]
-dependencies = ["psutil", "pysocks"]
+dependencies = []
 
 [project.scripts]
 firstmail = "firstmail.__main__:main"
